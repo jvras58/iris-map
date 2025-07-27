@@ -1,18 +1,16 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import LoginForm from "@/modules/auth/components/LoginForm";
 import RegisterForm from "@/modules/auth/components/RegisterForm";
 import { Metadata } from "next";
 import { Heart } from "lucide-react";
 
-//[REFACTOR] CONSISTENT IN AUTH PAGES
-// como estamos usando tabs para login e cadastro, talvez não faça sentido ter paginas separadas....
+
 export const metadata: Metadata = {
-  title: "Cadastro",
+  title: "Autenticação",
 };
 
-export default function RegisterPage() {
+export default function AuthPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 px-4">
       <div className="w-full max-w-md">
@@ -25,7 +23,7 @@ export default function RegisterPage() {
         </div>
         <Card className="w-full max-w-md">
           <CardContent>
-            <Tabs defaultValue="register" className="w-full">
+            <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="login">Entrar</TabsTrigger>
                 <TabsTrigger value="register">Cadastrar</TabsTrigger>
