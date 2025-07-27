@@ -1,103 +1,162 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Heart, Shield, Users, MapPin, Calendar } from "lucide-react";
+import Link from "next/link";
+// import { ChatBot } from "@/components/ChatBot";
 import Image from "next/image";
 
 export default function Home() {
+  const features = [
+    {
+      icon: <MapPin className="h-8 w-8 text-primary" />,
+      title: "Mapa de espaços",
+      description: "Descubra e compartilhe locais que sejam seguros e acolhedores.",
+    },
+    {
+      icon: <Calendar className="h-8 w-8 text-primary" />,
+      title: "Lista de eventos",
+      description: "Encontre e organize eventos que promovam diversidade e inclusão.",
+    },
+    {
+      icon: <Users className="h-8 w-8 text-primary" />,
+      title: "Comunidade exclusiva",
+      description: "A participação se dá através de convites enviados pela comunidade.",
+    },
+  ];
+
+  const values = [
+    {
+      icon: <Heart className="h-6 w-6 text-primary" />,
+      title: "Acolhimento",
+      description: "Criamos espaços onde cada pessoa pode ser autêntica.",
+    },
+    {
+      icon: <Shield className="h-6 w-6 text-primary" />,
+      title: "Segurança",
+      description: "Priorizamos a segurança física e emocional de nossa comunidade.",
+    },
+    {
+      icon: <Users className="h-6 w-6 text-primary" />,
+      title: "Comunidade",
+      description: "Fortalecemos os laços entre pessoas diversas.",
+    },
+  ];
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
+      {/* Hero Section */}
+      <div className="relative h-96 overflow-hidden">
         <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
+          src="/hero-image.jpg"
+          alt="Conexão Íris Hero"
+          fill
+          className="object-cover"
           priority
         />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/80 to-pink-600/60" />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <div className="text-center text-white">
+            <h1 className="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
+              Conexão Íris
+            </h1>
+            <p className="text-xl md:text-2xl mb-8 max-w-2xl mx-auto drop-shadow-md">
+              Descubra espaços e eventos seguros para a comunidade LGBTQIAPN+
+            </p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Button asChild size="lg">
+                <Link href="/mapa">
+                  <MapPin className="mr-2 h-5 w-5" />
+                  Explorar Mapa
+                </Link>
+              </Button>
+              <Button asChild size="lg">
+                <Link href="/eventos">
+                  <Calendar className="mr-2 h-5 w-5" />
+                  Explorar Eventos
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
+
+      <div className="container mx-auto px-4 py-16">
+        {/* Mission Section */}
+        <div className="text-center mb-16">
+          <h2 className="text-4xl font-bold text-foreground mb-6">Nossa Missão</h2>
+          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+            Construir uma rede de espaços seguros e acolhedores onde a comunidade LGBTQIA+ possa existir livremente, conectar-se e prosperar em um ambiente de respeito e diversidade.
+          </p>
+        </div>
+
+        {/* Features Section */}
+        <div className="mb-16">
+          <h3 className="text-3xl font-bold text-center text-foreground mb-12">
+            Como Funciona
+          </h3>
+          <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
+            {features.map((feature, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    {feature.icon}
+                  </div>
+                  <h4 className="font-semibold text-lg mb-2">{feature.title}</h4>
+                  <p className="text-muted-foreground text-sm">{feature.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Community Section */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl font-bold mb-4 text-primary">
+            Construindo Juntes uma Comunidade Mais Segura
+          </h2>
+          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+            Cada local mapeado e cada avaliação compartilhada fortalece nossa rede de apoio e segurança.
+          </p>
+          <div className="grid gap-6 md:grid-cols-3 max-w-4xl mx-auto">
+            {values.map((value, index) => (
+              <Card key={index} className="text-center hover:shadow-lg transition-all duration-300">
+                <CardContent className="pt-6">
+                  <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                    {value.icon}
+                  </div>
+                  <h3 className="font-semibold mb-2">{value.title}</h3>
+                  <p className="text-sm text-muted-foreground">{value.description}</p>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Call to Action */}
+        <div className="text-center">
+          <h3 className="text-2xl font-bold text-foreground mb-4">
+            Faça Parte da Mudança
+          </h3>
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
+            Sua contribuição faz a diferença. Ajude-nos a mapear mais espaços seguros e a construir uma comunidade mais forte.
+          </p>
+          <div className="flex flex-wrap justify-center gap-4">
+            <Button asChild size="lg">
+              <Link href="/mapa">
+                <MapPin className="mr-2 h-5 w-5" />
+                Explorar Mapa
+              </Link>
+            </Button>
+            <Button asChild size="lg">
+              <Link href="/eventos">
+                <Calendar className="mr-2 h-5 w-5" />
+                Explorar Eventos
+              </Link>
+            </Button>
+          </div>
+        </div>
+      </div>
+      {/* <ChatBot /> */}
     </div>
   );
 }
