@@ -66,7 +66,7 @@ export default function RegisterForm() {
           Entre ou crie uma nova conta para acessar a plataforma
         </p>
       </div>
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 min-h-[280px]">
         <FormField
           control={form.control}
           name="name"
