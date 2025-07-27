@@ -2,11 +2,11 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { register } from '@/actions/register';
 import { RegisterFormData, RegisterformSchema } from "../schemas/register-schema";
+import { useAuthTab } from "../hooks/use-auth-tabs";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,7 @@ import {
 } from "@/components/ui/form";
 
 export default function RegisterForm() {
-  const router = useRouter();
+  const { setActiveTab } = useAuthTab();
   const form = useForm<RegisterFormData>({
     resolver: zodResolver(RegisterformSchema),
     defaultValues: {
@@ -46,9 +46,9 @@ export default function RegisterForm() {
       }
 
       toast.success('Cadastro realizado com sucesso!', {
-        description: 'Você será redirecionado para a página de Login.',
+        description: 'Agora você pode fazer login.',
       });
-      router.push('/auth/login');
+      setActiveTab('login');
     } catch (err) {
       if (err instanceof Error) {
         toast.error('Ocorreu um erro inesperado. Tente novamente', {
@@ -61,9 +61,9 @@ export default function RegisterForm() {
   return (
     <Form {...form}>
       <div className="space-y-2 mb-6">
-        <h2 className="text-2xl font-semibold text-center">Acesse sua conta</h2>
+        <h2 className="text-2xl font-semibold text-center">Crie sua conta</h2>
         <p className="text-sm text-muted-foreground text-center">
-          Entre ou crie uma nova conta para acessar a plataforma
+          Preencha os dados abaixo para criar sua conta
         </p>
       </div>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 min-h-[280px]">
