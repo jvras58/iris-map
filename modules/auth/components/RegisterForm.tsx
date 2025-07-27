@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 
-import { register } from '@/actions/register';
+
 import { RegisterFormData, RegisterformSchema } from "../schemas/register-schema";
 import { useAuthTab } from "../hooks/use-auth-tabs";
 
@@ -18,6 +18,8 @@ import {
   FormControl,
   FormMessage,
 } from "@/components/ui/form";
+import { register } from "../actions/register";
+
 
 export default function RegisterForm() {
   const { setActiveTab } = useAuthTab();
