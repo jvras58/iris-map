@@ -188,8 +188,8 @@ Execute os testes do projeto com os comandos abaixo:
 ## 🧑‍💻 Autores
 
 * [Jonathas-Vinicius](https://github.com/jvras58)
-* [Rafael-Samico]()
-* [Antonio-Rodrigues]()
+* [Rafael-Samico](https://github.com/rafaelsamico)
+* [Antonio-Rodrigues](https://github.com/AntonioCar0lin0)
 
 
 ---
