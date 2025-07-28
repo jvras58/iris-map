@@ -1,5 +1,5 @@
 
-# 📄 Conexão Íris - Mapose
+# 🌈 IRIS Map - Sistema Colaborativo de Espaços Seguros LGBTQIA+ - Equipe Mapose
 
 ## 📚 Sumário
 
@@ -17,7 +17,7 @@
 
 ## 📖 Sobre o Projeto
 
-O **Conexão Iris** é uma plataforma para gerenciamento colaborativo de.........
+O **Conexão Iris** é uma plataforma comunitária colaborativo é uma rede comunitária feita para pessoas LGBTQIAPN+.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15.x.x-black)
 ![TypeScript](https://img.shields.io/badge/TypeScript-blue)
@@ -156,9 +156,8 @@ Acesse em: [http://localhost:3000](http://localhost:3000)
 
 ## WEB:
 
-Usuario para testes:
 
-
+## Funcionalidades:
 [🔗 Acesse a Landing Page](http://localhost:3000/)
 [Auth Page](http://localhost:3000/auth)
 [Mapa](http://localhost:3000/map)
