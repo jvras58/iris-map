@@ -12,7 +12,7 @@ export default function Navigation() {
 
   const navItems = [
     { path: '/', label: 'Home', icon: MapPin },
-    { path: '/mapa', label: 'Mapa', icon: MapPin },
+    { path: '/map', label: 'Mapa', icon: MapPin },
     { path: '/eventos', label: 'Eventos', icon: Calendar },
     { path: '/sugerir', label: 'Sugerir Local', icon: Plus },
     { path: '/carteirinha', label: 'Carteirinha', icon: Info },

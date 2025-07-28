@@ -64,7 +64,7 @@ export default function Home() {
             </p>
             <div className="flex flex-wrap justify-center gap-4">
               <Button asChild size="lg">
-                <Link href="/mapa">
+                <Link href="/map">
                   <MapPin className="mr-2 h-5 w-5" />
                   Explorar Mapa
                 </Link>
@@ -142,7 +142,7 @@ export default function Home() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Button asChild size="lg">
-              <Link href="/mapa">
+              <Link href="/map">
                 <MapPin className="mr-2 h-5 w-5" />
                 Explorar Mapa
               </Link>
