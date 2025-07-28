@@ -135,7 +135,7 @@ Crie um arquivo `.env` baseado em `.env-example` com as credenciais necessárias
 
 ```bash
 npx prisma generate
-npx prisma db:push
+npx prisma db push
 pnpm run db:seed
 ```
 
