@@ -14,7 +14,7 @@ export default function Navigation() {
     { path: '/', label: 'Home', icon: MapPin },
     { path: '/map', label: 'Mapa', icon: MapPin },
     { path: '/event', label: 'Eventos', icon: Calendar },
-    { path: '/sugerir', label: 'Sugerir Local', icon: Plus },
+    { path: '/suggest-location', label: 'Sugerir Local', icon: Plus },
     { path: '/carteirinha', label: 'Carteirinha', icon: Info },
   ];
 
