@@ -42,14 +42,14 @@ export default function LoginForm() {
       });
 
       if (response?.error) {
-        toast.error("Email ou senha incorretos. Tente novamente.", {
-          description: response.error,
+        toast.error("Email ou senha incorretos", {
+          description: "Verifique suas credenciais e tente novamente",
         });
         return;
       }
 
-      toast.success("Sucesso!", {
-        description: "Login realizado com sucesso!",
+      toast.success("Login realizado com sucesso!", {
+        description: "Redirecionando para a página principal...",
       });
       router.push("/");
       router.refresh();
