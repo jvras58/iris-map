@@ -41,6 +41,7 @@ O projeto foi desenvolvido utilizando princípios de **Design Thinking** para me
 ### Documentação e Recursos
 - 🎨 [Board de Design Thinking - Figma](https://www.figma.com/board/eyUcflwro7i28qXQVRZP6C/Vibe-Hack?node-id=0-1&t=7tXjnPQqB82aulJ7-1)
 - 📋 [Documentação Completa de Prompts](https://docs.google.com/document/d/1VtzeHyn43ZL3hyv34rRS-MwVtEGDCDYQFvZKwrKnlTU/edit?usp=sharing)
+- 📚 [Lovable Project](https://lovable.dev/projects/75291bd2-8f2c-4ffd-906d-abfcf24d38cf)
 
 ### Desenvolvimento com IA Generativa
 O projeto foi desenvolvido utilizando **Vibe Code** (desenvolvimento assistido por IA), com todos os prompts documentados para transparência e reprodutibilidade do processo.
