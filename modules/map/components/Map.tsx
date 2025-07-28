@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useMemo, useState, useCallback } from "react";
+import { useEffect, useRef, useMemo, useState, useCallback, forwardRef, useImperativeHandle } from "react";
 import { Location, categoryLabels } from "../actions/mockData";
 
 // Import Leaflet types
 import type { Map as LeafletMap, LayerGroup, Marker as LeafletMarker, DivIcon, LatLngTuple } from 'leaflet';
-import { Loader2 } from "lucide-react";
 
 interface MapProps {
   locations: Location[];
@@ -13,9 +12,20 @@ interface MapProps {
   onLocationSelect?: (location: Location) => void;
   userLocation?: { lat: number; lng: number } | null;
   centerOnUser?: () => void;
+  isLoadingLocation?: boolean;
 }
 
-export default function Map({ locations, selectedCategories, onLocationSelect, userLocation }: MapProps) {
+export interface MapRef {
+  setView: (center: [number, number], zoom: number, options?: any) => void;
+}
+
+const Map = forwardRef<MapRef, MapProps>(({ 
+  locations, 
+  selectedCategories, 
+  onLocationSelect, 
+  userLocation,
+  isLoadingLocation = false 
+}, ref) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<LeafletMap | null>(null);
   const markersRef = useRef<LayerGroup | null>(null);
@@ -24,6 +34,14 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
   const [leafletLoaded, setLeafletLoaded] = useState(false);
   const hasInitializedLocation = useRef(false);
   const previousUserLocation = useRef<{ lat: number; lng: number } | null>(null);
+
+  useImperativeHandle(ref, () => ({
+    setView: (center: [number, number], zoom: number, options?: any) => {
+      if (map.current) {
+        map.current.setView(center, zoom, options);
+      }
+    }
+  }), []);
 
   // Load Leaflet CSS and JS
   useEffect(() => {
@@ -57,17 +75,27 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
     loadLeaflet();
   }, []);
 
-  // Initialize map
+  // Initialize map only when we have user location or after timeout
   useEffect(() => {
     if (!leafletLoaded || !mapContainer.current || map.current) return;
+    
+    // Wait for user location or initialize with default after 3 seconds
+    const shouldInitialize = userLocation || !isLoadingLocation;
+    
+    if (!shouldInitialize) return;
 
     const initMap = async () => {
       const L = (await import('leaflet')).default;
       
+      // Use user location as initial center, fallback to São Paulo if needed
+      const initialCenter: LatLngTuple = userLocation 
+        ? [userLocation.lat, userLocation.lng] 
+        : [-23.5505, -46.6333];
+      
       // Create map with proper options
       const leafletMap = L.map(mapContainer.current!, {
-        center: [-23.5505, -46.6333] as LatLngTuple,
-        zoom: 12,
+        center: initialCenter,
+        zoom: userLocation ? 15 : 12, // Closer zoom if we have user location
         zoomControl: true,
         scrollWheelZoom: true,
         doubleClickZoom: true,
@@ -110,7 +138,7 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
         previousUserLocation.current = null;
       }
     };
-  }, [leafletLoaded]);
+  }, [leafletLoaded, userLocation, isLoadingLocation]);
 
   // Function to calculate distance between two points (in meters)
   const calculateDistance = useCallback((lat1: number, lng1: number, lat2: number, lng2: number) => {
@@ -169,24 +197,28 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
     const updateUserMarker = async () => {
       const L = (await import('leaflet')).default;
       
-      // Check if location changed significantly (more than 100 meters)
-      const shouldRecenter = !hasInitializedLocation.current || 
-        !previousUserLocation.current ||
-        calculateDistance(
-          userLocation.lat, 
-          userLocation.lng, 
-          previousUserLocation.current.lat, 
-          previousUserLocation.current.lng
-        ) > 100;
-
-      // Center map on user for the first time or significant distance change
-      if (shouldRecenter) {
-        map.current?.setView([userLocation.lat, userLocation.lng], hasInitializedLocation.current ? 15 : 13);
+      // For the first initialization, we don't need to recenter since map was already centered on user
+      if (!hasInitializedLocation.current) {
         hasInitializedLocation.current = true;
-      }
+        previousUserLocation.current = { ...userLocation };
+      } else {
+        // Check if location changed significantly (more than 50 meters for better precision)
+        const shouldRecenter = previousUserLocation.current &&
+          calculateDistance(
+            userLocation.lat, 
+            userLocation.lng, 
+            previousUserLocation.current.lat, 
+            previousUserLocation.current.lng
+          ) > 50;
 
-      // Update previous location reference
-      previousUserLocation.current = { ...userLocation };
+        // Center map on user if significant distance change
+        if (shouldRecenter) {
+          map.current?.setView([userLocation.lat, userLocation.lng], 15);
+        }
+
+        // Update previous location reference
+        previousUserLocation.current = { ...userLocation };
+      }
 
       // Remove previous user marker
       if (userMarkerRef.current && map.current) {
@@ -365,6 +397,10 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
     `;
   };
 
+  // Show different loading states
+  const showLocationLoading = isLoadingLocation && !userLocation;
+  const showMapLoading = !isMapReady && !showLocationLoading;
+
   return (
     <>
       {/* CSS para animação de pulso */}
@@ -390,14 +426,25 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
       `}</style>
       
       <div className="w-full h-full relative overflow-hidden">
-        {/* Loading indicator */}
-        {!isMapReady && (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="flex flex-col items-center gap-2">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <div className="text-lg text-muted-foreground">Carregando...</div>
+        {/* Loading indicator for location */}
+        {showLocationLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mx-auto mb-4"></div>
+              <p className="text-gray-700 text-lg font-medium mb-2">Aguardando sua localização...</p>
+              <p className="text-gray-500 text-sm">O mapa será inicializado com sua posição atual</p>
             </div>
-        </div>
+          </div>
+        )}
+
+        {/* Loading indicator for map */}
+        {showMapLoading && (
+          <div className="absolute inset-0 flex items-center justify-center bg-gray-100 rounded-lg z-10">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600 mx-auto mb-2"></div>
+              <p className="text-gray-600 text-sm">Carregando mapa...</p>
+            </div>
+          </div>
         )}
         
         {/* Map container */}
@@ -433,14 +480,20 @@ export default function Map({ locations, selectedCategories, onLocationSelect, u
                 <div className="w-2 h-2 border border-purple-500 rounded-full flex-shrink-0"></div>
                 <span className="text-xs text-gray-600">LGBTQIA+</span>
               </div>
-              <div className="flex items-center space-x-1">
-                <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 animate-pulse"></div>
-                <span className="text-xs text-gray-600">Você</span>
-              </div>
+              {userLocation && (
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 animate-pulse"></div>
+                  <span className="text-xs text-gray-600">Você</span>
+                </div>
+              )}
             </div>
           </div>
         )}
       </div>
     </>
   );
-}
+});
+
+Map.displayName = 'Map';
+
+export default Map;

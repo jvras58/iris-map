@@ -1,4 +1,3 @@
-// hooks/useGeolocation.ts
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
@@ -22,6 +21,7 @@ interface UseGeolocationOptions {
   defaultLocation?: UserLocation;
   autoRequest?: boolean;
   onLocationChange?: (location: UserLocation | null) => void;
+  onLoadingChange?: (loading: boolean) => void;
 }
 
 export const useGeolocation = (options: UseGeolocationOptions = {}) => {
@@ -31,7 +31,8 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     maximumAge = 300000, // 5 minutos
     defaultLocation = { lat: -23.5505, lng: -46.6333 }, // São Paulo
     autoRequest = true,
-    onLocationChange
+    onLocationChange,
+    onLoadingChange
   } = options;
 
   const [state, setState] = useState<GeolocationState>({
@@ -41,12 +42,17 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     denied: false
   });
 
-  // Chama onLocationChange sempre que a localização mudar
   useEffect(() => {
     if (onLocationChange) {
       onLocationChange(state.location || defaultLocation);
     }
   }, [state.location, defaultLocation, onLocationChange]);
+
+  useEffect(() => {
+    if (onLoadingChange) {
+      onLoadingChange(state.loading);
+    }
+  }, [state.loading, onLoadingChange]);
 
   const getCurrentLocation = useCallback(() => {
     setState(prev => ({ ...prev, loading: true, error: null, denied: false }));
@@ -108,7 +114,6 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     );
   }, [enableHighAccuracy, timeout, maximumAge]);
 
-  // Função para obter permissão de localização
   const requestPermission = useCallback(async () => {
     if (!navigator.permissions) {
       getCurrentLocation();

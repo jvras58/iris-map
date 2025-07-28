@@ -1,6 +1,6 @@
 "use client";
 
-import { AlertCircle, Loader2, Navigation, MapPin } from "lucide-react";
+import { AlertCircle, Loader2, Navigation, MapPin, Target } from "lucide-react";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { toast } from "sonner";
 import { useEffect, useRef } from "react";
@@ -12,6 +12,7 @@ interface LocationUserComponentProps {
   showFloatingButton?: boolean;
   showBanner?: boolean;
   className?: string;
+  onCenterOnUser?: () => void;
 }
 
 export default function LocationUserComponent({
@@ -20,10 +21,12 @@ export default function LocationUserComponent({
   autoRequest = true,
   showFloatingButton = true,
   showBanner = true,
-  className = ""
+  className = "",
+  onCenterOnUser
 }: LocationUserComponentProps) {
   const {
     currentLocation,
+    location,
     loading,
     error,
     denied,
@@ -40,13 +43,7 @@ export default function LocationUserComponent({
   const previousHasLocation = useRef(hasLocation);
   const hasShownSuccessToast = useRef(false);
 
-  // Mostra toast quando a localização é obtida com sucesso - CORRIGIDO
   useEffect(() => {
-    // Só mostra o toast se:
-    // 1. Temos localização agora
-    // 2. Não tínhamos antes
-    // 3. Não está carregando
-    // 4. Ainda não mostramos o toast
     if (hasLocation && !previousHasLocation.current && !loading && !hasShownSuccessToast.current) {
       toast.success("📍 Localização atualizada!", {
         description: "Sua localização foi obtida com sucesso"
@@ -54,16 +51,21 @@ export default function LocationUserComponent({
       hasShownSuccessToast.current = true;
     }
     
-    // Atualiza a referência apenas quando necessário
     if (previousHasLocation.current !== hasLocation) {
       previousHasLocation.current = hasLocation;
     }
     
-    // Reset do flag quando perde a localização
     if (!hasLocation) {
       hasShownSuccessToast.current = false;
     }
-  }, [hasLocation, loading]); // Mantém apenas as dependências essenciais
+  }, [hasLocation, loading]);
+
+  // Função para centralizar no usuário
+  const handleCenterOnUser = () => {
+    if (onCenterOnUser && location) {
+      onCenterOnUser();
+    }
+  };
 
   // Só mostra o banner se houver algo importante para mostrar
   const shouldShowBanner = showBanner && (
@@ -139,28 +141,25 @@ export default function LocationUserComponent({
       {/* Botões flutuantes */}
       {showFloatingButton && (
         <div className="fixed bottom-6 right-6 z-[1001] flex flex-col space-y-3">
-          {/* Botão para atualizar localização */}
-          <button
-            onClick={getCurrentLocation}
-            disabled={loading}
-            className="bg-primary hover:bg-primary/90 disabled:bg-primary/60 text-primary-foreground p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 disabled:scale-100"
-            title={hasLocation ? "Atualizar minha localização" : "Obter minha localização"}
-          >
-            {loading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : (
-              <Navigation className="h-5 w-5" />
-            )}
-          </button>
+          {/* Botão para centralizar no usuário (apenas se tem localização REAL) */}
+          {location && (
+            <button
+              onClick={handleCenterOnUser}
+              className="bg-white hover:bg-gray-50 text-gray-700 hover:text-purple-600 p-3 rounded-full shadow-lg transition-all duration-200 hover:scale-105 border"
+              title="Centralizar na minha localização"
+            >
+              <Target className="h-5 w-5" />
+            </button>
+          )}
 
           {/* Indicador de status da localização */}
           <div className="bg-card rounded-full p-2 shadow-lg border">
             <div 
               className={`w-3 h-3 rounded-full transition-colors duration-300 ${
-                hasLocation ? 'bg-green-500' : error ? 'bg-destructive' : 'bg-yellow-500'
+                location ? 'bg-green-500' : error ? 'bg-destructive' : 'bg-yellow-500'
               }`}
               title={
-                hasLocation 
+                location 
                   ? "Localização obtida" 
                   : error 
                     ? "Erro na localização" 
