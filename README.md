@@ -1,36 +1,209 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+# 📄 Conexão Íris - Mapose
 
-First, run the development server:
+## 📚 Sumário
+
+- [Sobre o Projeto](#sobre-o-projeto)
+- [Stack Tecnológica Principal](#stack-tecnológica-principal)
+- [Arquitetura do Projeto](#arquitetura-do-projeto)
+- [Instalação e Configuração](#instalação-e-configuração)
+- [Funcionalidades Principais](#funcionalidades-principais)
+- [Documentação](#documentação)
+- [Autores](#autores)
+- [Licença](#licença)
+- [Referências Técnicas](#referências-técnicas)
+
+---
+
+## 📖 Sobre o Projeto
+
+O **Conexão Iris** é uma plataforma para gerenciamento colaborativo de.........
+
+![Next.js](https://img.shields.io/badge/Next.js-15.x.x-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-blue)
+![Prisma](https://img.shields.io/badge/Prisma-5.x.x-2D3748)
+
+---
+
+## 🛠️ Stack Tecnológica Principal
+
+Tecnologias principais utilizadas no projeto:
+
+| **Categoria**         | **Tecnologia**    | **Versão**       |
+|-----------------------|-------------------|------------------|
+| **Runtime**           | Node.js           | v20.x.x          |
+| **Frontend**          | Next.js           | v15.x.x          |
+| **ORM**               | Prisma            | v5.x.x           |
+| **Linguagem**         | TypeScript        | -                |
+| **Componentes UI**    | shadcn/UI         | -                |
+| **Gerenciador de pacotes** | pnpm         | v5.x.x           |
+
+Outras bibliotecas:
+- **Zod** para validação de dados
+- **React Hook Form** para formulários
+- **TanStack** para manipulação avançada de dados
+
+---
+
+## 🧱 Arquitetura do Projeto
+
+Este é um projeto next.js com a seguinte estrutura principal:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+IRIS-MAP/
+├── components.json         # Configurações dos componentes shadcn/ui
+├── eslint.config.mjs      # Configuração do ESLint
+├── middleware.ts          # Proteção das rotas
+├── next.config.ts         # Configuração do Next.js
+├── package.json           # Dependências e scripts
+├── README.md              # Documentação do projeto
+├── app/                   # App Router do Next.js 15
+│   ├── globals.css        # Estilos globais
+│   ├── layout.tsx         # Layout raiz da aplicação
+│   ├── page.tsx           # Landing page (página inicial)
+│   ├── (auth)/            # Grupo de rotas - Autenticação
+│   │   ├── layout.tsx     # Layout específico para auth
+│   │   └── auth/
+│   │       └── page.tsx   # Página de login/registro
+│   ├── (map)/             # Grupo de rotas - Mapa
+│   │   └── ...            # Páginas relacionadas ao mapa
+│   └── api/               # API Routes
+│       └── auth/          # Endpoints de autenticação (Auth.js)
+│           └── [...nextauth]/
+│               └── route.ts
+├── components/            # Componentes globais reutilizáveis
+│   ├── mode-toggle.tsx    # Toggle tema claro/escuro
+│   ├── navbar.tsx         # Barra de navegação
+│   └── ui/                # Componentes do shadcn/ui
+├── lib/                   # Utilitários e configurações
+│   ├── auth.ts            # Configuração Auth.js
+│   ├── prisma.ts          # Cliente Prisma singleton
+│   └── utils.ts           # Funções utilitárias
+├── modules/               # Feature modules (Domain-driven)
+│   └── auth/              # Módulo de autenticação
+│       ├── actions/       # Server Actions
+│       │   └── register.ts
+│       ├── components/    # Componentes específicos
+│       │   ├── AuthTabsClient.tsx
+│       │   ├── LoginForm.tsx
+│       │   ├── navbar.tsx
+│       │   └── RegisterForm.tsx
+│       ├── hooks/         # Hooks customizados
+│       │   └── use-auth-tabs.tsx
+│       └── schemas/       # Schemas de validação (Zod)
+│           ├── login-schema.ts
+│           └── register-schema.ts
+├── prisma/                # Configuração do banco de dados
+│   ├── schema.prisma      # Modelos e schema do BD
+│   └── migrations/        # Histórico de migrações
+├── providers/             # Context Providers
+│   ├── queryProviders.tsx # TanStack Query
+│   ├── root-app-provider.tsx # Provider principal
+│   └── theme-provider.tsx # Tema shadcn/ui
+└── docs/                  # Documentação adicional
+    ├── iris.md           # Documentação técnica
+    └── DBML.png          # Diagrama do banco
+
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## ⚙️ Instalação e Configuração
 
-To learn more about Next.js, take a look at the following resources:
+Siga os passos abaixo para rodar o projeto localmente:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### 1. Clone o repositório
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+git clone https://github.com/[SEU-USER]/iris-mapa
+cd iris-map
+```
 
-## Deploy on Vercel
+### 2. Instale as dependências
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```bash
+pnpm install
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### 3. Configure variáveis de ambiente
+
+Crie um arquivo `.env` baseado em `.env-example` com as credenciais necessárias.
+
+### 4. Configure o banco de dados
+
+```bash
+npx prisma generate
+npx prisma db:push
+pnpm run db:seed
+```
+
+### 5. Inicie o ambiente de desenvolvimento
+
+```bash
+pnpm dev
+```
+
+Acesse em: [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 💻 Funcionalidades Principais
+
+* Página inicial
+* Mapa interativo
+
+## WEB:
+
+Usuario para testes:
+
+
+[🔗 Acesse a Landing Page](http://localhost:3000/)
+[Auth Page](http://localhost:3000/auth)
+[Mapa](http://localhost:3000/map)
+
+## 📖 Testes:
+
+Execute os testes do projeto com os comandos abaixo:
+
+| Comando                | Descrição                                              |
+|------------------------|--------------------------------------------------------|
+| `pnpm run test`        | Executa todos os testes uma vez (modo padrão)          |
+| `pnpm run test:watch`  | Executa os testes em modo watch (atualização contínua) |
+| `pnpm run test:cov`    | Executa os testes e exibe o relatório de cobertura     |
+
+---
+
+## 📘 Documentação
+
+> Documentação técnica interna detalhada:
+
+[📁 Documentação Técnica do Projeto](/docs/iris.md)
+
+[📄DBML BANCO DE DADOS](/docs/DBML.png)
+
+---
+
+## 🧑‍💻 Autores
+
+* [Jonathas-Vinicius](https://github.com/jvras58)
+* [Rafael-Samico]()
+* [Antonio-Rodrigues]()
+
+
+---
+
+## 📜 Licença
+
+Este projeto ainda não possui uma licença definida.
+
+---
+
+## 🔍 Referências Técnicas
+
+* [Next.js 15 Docs](https://nextjs.org/docs/getting-started)
+* [Next.js Caching](https://nextjs.org/docs/app/building-your-application/caching)
+* [TanStack](https://tanstack.com/)
+* [React Hook Form](https://react-hook-form.com/)
+* [Zod](https://zod.dev/)
