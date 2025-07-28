@@ -2,15 +2,14 @@ import Navigation from "@/modules/auth/components/navbar";
 import { AuthTabProvider } from "@/modules/auth/hooks/use-auth-tabs";
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-
   return (
-    <div className="flex h-screen w-screen">
-      <div className="flex-1 overflow-auto">
-        <AuthTabProvider>
+    <div className="min-h-screen w-full">
+      <AuthTabProvider>
         <Navigation />
-        {children}
-        </AuthTabProvider>
-      </div>
+        <main className="w-full">
+          {children}
+        </main>
+      </AuthTabProvider>
     </div>
   );
 }
