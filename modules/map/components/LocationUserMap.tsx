@@ -3,7 +3,7 @@
 import { AlertCircle, Loader2, Navigation, MapPin, Target } from "lucide-react";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { toast } from "sonner";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 
 interface LocationUserComponentProps {
   onLocationChange?: (location: { lat: number; lng: number } | null) => void;
@@ -44,6 +44,7 @@ export default function LocationUserComponent({
   const hasShownSuccessToast = useRef(false);
 
   useEffect(() => {
+    // Evita mostrar toast múltiplas vezes
     if (hasLocation && !previousHasLocation.current && !loading && !hasShownSuccessToast.current) {
       toast.success("📍 Localização atualizada!", {
         description: "Sua localização foi obtida com sucesso"
@@ -51,21 +52,27 @@ export default function LocationUserComponent({
       hasShownSuccessToast.current = true;
     }
     
-    if (previousHasLocation.current !== hasLocation) {
-      previousHasLocation.current = hasLocation;
-    }
+    previousHasLocation.current = hasLocation;
     
+    // Reset toast flag quando não há localização
     if (!hasLocation) {
       hasShownSuccessToast.current = false;
     }
   }, [hasLocation, loading]);
 
-  // Função para centralizar no usuário
-  const handleCenterOnUser = () => {
+  const handleCenterOnUser = useCallback(() => {
     if (onCenterOnUser && location) {
       onCenterOnUser();
     }
-  };
+  }, [onCenterOnUser, location]);
+
+  const handleGetCurrentLocation = useCallback(() => {
+    getCurrentLocation();
+  }, [getCurrentLocation]);
+
+  const handleClearError = useCallback(() => {
+    clearError();
+  }, [clearError]);
 
   // Só mostra o banner se houver algo importante para mostrar
   const shouldShowBanner = showBanner && (
@@ -98,14 +105,14 @@ export default function LocationUserComponent({
                 
                 <div className="flex items-center space-x-2">
                   <button
-                    onClick={clearError}
+                    onClick={handleClearError}
                     className="text-xs text-gray-500 hover:text-gray-700"
                   >
                     Dispensar
                   </button>
                   {denied && (
                     <button
-                      onClick={getCurrentLocation}
+                      onClick={handleGetCurrentLocation}
                       className="text-sm bg-purple-600 text-white px-3 py-1 rounded-lg hover:bg-purple-700 transition-colors flex items-center"
                     >
                       <Navigation className="h-3 w-3 mr-1" />
@@ -123,7 +130,7 @@ export default function LocationUserComponent({
                   <span className="text-sm">Usando localização padrão (São Paulo)</span>
                 </div>
                 <button
-                  onClick={getCurrentLocation}
+                  onClick={handleGetCurrentLocation}
                   className="text-sm text-purple-600 hover:text-purple-700 flex items-center"
                 >
                   <Navigation className="h-3 w-3 mr-1" />

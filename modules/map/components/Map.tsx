@@ -190,34 +190,32 @@ const Map = forwardRef<MapRef, MapProps>(({
     updateMarkers();
   }, [isMapReady, locations, selectedCategories, onLocationSelect]);
 
-  // Update user location marker
+  // Update user location marker with better dependency handling
   useEffect(() => {
     if (!isMapReady || !map.current || !userLocation) return;
 
     const updateUserMarker = async () => {
       const L = (await import('leaflet')).default;
       
-      // For the first initialization, we don't need to recenter since map was already centered on user
+      // Check if this is a significant location change
+      const isSignificantChange = !previousUserLocation.current ||
+        calculateDistance(
+          userLocation.lat, 
+          userLocation.lng, 
+          previousUserLocation.current.lat, 
+          previousUserLocation.current.lng
+        ) > 50;
+
+      // Only update if there's a significant change or first time
       if (!hasInitializedLocation.current) {
         hasInitializedLocation.current = true;
         previousUserLocation.current = { ...userLocation };
-      } else {
-        // Check if location changed significantly (more than 50 meters for better precision)
-        const shouldRecenter = previousUserLocation.current &&
-          calculateDistance(
-            userLocation.lat, 
-            userLocation.lng, 
-            previousUserLocation.current.lat, 
-            previousUserLocation.current.lng
-          ) > 50;
-
-        // Center map on user if significant distance change
-        if (shouldRecenter) {
-          map.current?.setView([userLocation.lat, userLocation.lng], 15);
-        }
-
-        // Update previous location reference
+      } else if (isSignificantChange) {
+        map.current?.setView([userLocation.lat, userLocation.lng], 15);
         previousUserLocation.current = { ...userLocation };
+      } else {
+        // If location hasn't changed significantly, don't update
+        return;
       }
 
       // Remove previous user marker
@@ -289,7 +287,7 @@ const Map = forwardRef<MapRef, MapProps>(({
     };
 
     updateUserMarker();
-  }, [isMapReady, userLocation, calculateDistance]);
+  }, [isMapReady, userLocation?.lat, userLocation?.lng, calculateDistance]);
 
   // Memoize custom icon creation
   const createCustomIcon = useMemo(

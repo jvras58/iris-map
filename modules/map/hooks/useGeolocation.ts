@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
 interface UserLocation {
   lat: number;
@@ -28,40 +28,28 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
   const {
     enableHighAccuracy = true,
     timeout = 10000,
-    maximumAge = 300000, // 5 minutos
-    defaultLocation = { lat: -23.5505, lng: -46.6333 }, // São Paulo
+    maximumAge = 300000,
+    defaultLocation = { lat: -23.5505, lng: -46.6333 },
     autoRequest = true,
     onLocationChange,
-    onLoadingChange
+    onLoadingChange,
   } = options;
 
   const [state, setState] = useState<GeolocationState>({
     location: null,
     loading: false,
     error: null,
-    denied: false
+    denied: false,
   });
 
-  useEffect(() => {
-    if (onLocationChange) {
-      onLocationChange(state.location || defaultLocation);
-    }
-  }, [state.location, defaultLocation, onLocationChange]);
-
-  useEffect(() => {
-    if (onLoadingChange) {
-      onLoadingChange(state.loading);
-    }
-  }, [state.loading, onLoadingChange]);
-
   const getCurrentLocation = useCallback(() => {
-    setState(prev => ({ ...prev, loading: true, error: null, denied: false }));
+    setState((prev) => ({ ...prev, loading: true, error: null, denied: false }));
 
     if (!navigator.geolocation) {
-      setState(prev => ({
+      setState((prev) => ({
         ...prev,
         loading: false,
-        error: "Geolocalização não é suportada pelo seu navegador"
+        error: "Geolocalização não é suportada pelo seu navegador",
       }));
       return;
     }
@@ -69,19 +57,29 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     const geoOptions: PositionOptions = {
       enableHighAccuracy,
       timeout,
-      maximumAge
+      maximumAge,
     };
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
         const newLocation = { lat: latitude, lng: longitude };
-        
-        setState({
-          location: newLocation,
-          loading: false,
-          error: null,
-          denied: false
+
+        setState((prev) => {
+          // Only update if location has changed
+          if (
+            prev.location &&
+            prev.location.lat === newLocation.lat &&
+            prev.location.lng === newLocation.lng
+          ) {
+            return prev;
+          }
+          return {
+            location: newLocation,
+            loading: false,
+            error: null,
+            denied: false,
+          };
         });
       },
       (error) => {
@@ -103,12 +101,13 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
             errorMessage = "Erro desconhecido ao obter localização";
         }
 
-        setState({
+        setState((prev) => ({
+          ...prev,
           location: null,
           loading: false,
           error: errorMessage,
-          denied
-        });
+          denied,
+        }));
       },
       geoOptions
     );
@@ -121,29 +120,24 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     }
 
     try {
-      const permission = await navigator.permissions.query({ name: 'geolocation' });
-      
-      if (permission.state === 'granted') {
-        getCurrentLocation();
-      } else if (permission.state === 'prompt') {
+      const permission = await navigator.permissions.query({ name: "geolocation" });
+
+      if (permission.state === "granted" || permission.state === "prompt") {
         getCurrentLocation();
       } else {
-        setState(prev => ({
+        setState((prev) => ({
           ...prev,
           error: "Permissão de localização negada",
-          denied: true
+          denied: true,
         }));
       }
     } catch {
-      // Fallback se a API de permissions não funcionar
       getCurrentLocation();
     }
   }, [getCurrentLocation]);
 
-  // Auto-request location on mount
   useEffect(() => {
     if (autoRequest) {
-      // Pequeno delay para evitar corrida de renderização
       const timer = setTimeout(() => {
         requestPermission();
       }, 100);
@@ -151,32 +145,41 @@ export const useGeolocation = (options: UseGeolocationOptions = {}) => {
     }
   }, [autoRequest, requestPermission]);
 
-  // Função para limpar erro
+  useEffect(() => {
+    if (onLocationChange && state.location !== null) {
+      onLocationChange(state.location);
+    } else if (onLocationChange && state.error && !state.location) {
+      onLocationChange(defaultLocation);
+    }
+  }, [state.location, state.error, defaultLocation, onLocationChange]);
+
+  useEffect(() => {
+    if (onLoadingChange) {
+      onLoadingChange(state.loading);
+    }
+  }, [state.loading, onLoadingChange]);
+
   const clearError = useCallback(() => {
-    setState(prev => ({ ...prev, error: null }));
+    setState((prev) => ({ ...prev, error: null }));
   }, []);
 
-  // Função para usar localização padrão
   const useDefaultLocation = useCallback(() => {
     setState({
       location: defaultLocation,
       loading: false,
       error: null,
-      denied: false
+      denied: false,
     });
   }, [defaultLocation]);
 
   return {
     ...state,
-    // Localização atual ou padrão
     currentLocation: state.location || defaultLocation,
-    // Funções
     getCurrentLocation,
     requestPermission,
     clearError,
     useDefaultLocation,
-    // Estados derivados
     hasLocation: !!state.location,
-    isUsingDefault: !state.location
+    isUsingDefault: !state.location,
   };
 };
