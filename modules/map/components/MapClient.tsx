@@ -173,7 +173,7 @@ export default function MapClient({ locations }: MapClientProps) {
                     Sugerir Local
                   </Button>
                 </Link>
-                <Link href="/sugerir-evento">
+                <Link href="/suggest">
                   <Button variant="outline" className="w-full" size="sm">
                     <Calendar className="h-4 w-4 mr-2" />
                     Sugerir Evento
