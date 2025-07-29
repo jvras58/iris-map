@@ -149,18 +149,52 @@ Acesse em: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 💻 Funcionalidades Principais
+💻 Funcionalidades Principais
 
-* Página inicial
-* Mapa interativo
+### 🔐 Autenticação e Segurança
+- **Sistema de Login/Registro** com validação robusta (Zod + React Hook Form)
+- **Proteção de rotas** via middleware do Next.js
+- **Autenticação segura** com Auth.js/NextAuth
 
-## WEB:
+### 🗺️ Mapa Interativo
+- **Visualização de locais LGBTQIA+ friendly** (atualmente com dados mockados)
+- **Interface intuitiva** para explorar estabelecimentos seguros
+- **Marcadores categorizados** por tipo de estabelecimento
+- **Sistema de sugestão de novos locais** (pendente de aprovação administrativa)
 
+### 🎉 Gestão de Eventos
+- **Exploração de eventos** da comunidade (dados mockados)
+- **Submissão de novos eventos** pelos usuários
+- **Sistema de moderação** - eventos ficam pendentes até aprovação
+- **Categorização e filtros** por tipo de evento
 
-## Funcionalidades:
-[🔗 Acesse a Landing Page](http://localhost:3000/)
-[Auth Page](http://localhost:3000/auth)
-[Mapa](http://localhost:3000/map)
+### 👤 Sistema de Usuários
+- **Perfis personalizáveis** para membros da comunidade
+- **Histórico de contribuições** (locais e eventos sugeridos)
+- **Interação social** básica entre usuários
+
+### 🛡️ Moderação e Qualidade
+- **Aprovação administrativa** para novos locais e eventos
+- **Sistema de validação** de conteúdo antes da publicação
+- **Controle de qualidade** das informações compartilhadas
+
+### 🎨 Interface e Experiência
+- **Design responsivo** para desktop e mobile
+- **Tema claro/escuro** personalizável
+- **Interface moderna** com componentes shadcn/ui
+- **Navegação intuitiva** e acessível
+
+## 🌐 Páginas Disponíveis
+
+| Página | URL | Descrição | Status |
+|--------|-----|-----------|---------|
+| **Landing Page** | `/` | Apresentação do projeto e call-to-action | ✅ Funcional |
+| **Autenticação** | `/auth` | Login e registro de usuários | ✅ Funcional |
+| **Mapa Principal** | `/map` | Visualização interativa de locais | 🟡 Dados mockados |
+| **Eventos** | `/event` | Exploração e submissão de eventos | 🟡 Dados mockados | ✅ Submissão Funcional |
+| **Sugerir Locais** | `/suggest-location` | Exploração e submissão de locais | 🟡 Dados mockados | ✅ Submissão Funcional |
+| **Perfil** | `/profile` | Gerenciamento do perfil do usuário | ✅ Funcional |
+| **Admin** | `/admin` | Painel administrativo | 🚧 Planejado |
 
 ## 📖 Testes:
 
