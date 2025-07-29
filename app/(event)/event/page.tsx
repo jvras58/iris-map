@@ -1,6 +1,6 @@
-import { mockEvents, eventCategoryLabels } from "@/modules/event/actions/mockData";
 import EventFilter from "@/modules/event/components/EventFilter";
 import EventTabsClient from "@/modules/event/components/EventTabsClient";
+import { EventService } from "@/modules/event/service/event";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -10,10 +10,20 @@ export const metadata: Metadata = {
 export default async function EventsPage({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const params = await searchParams;
   const selectedCategory = params.category || "all";
-  const filteredEvents =
-    selectedCategory === "all"
-      ? mockEvents
-      : mockEvents.filter((event) => event.category === selectedCategory);
+  
+  // Buscar categorias e eventos aprovados do banco
+  const [categoriesResult, eventsResult] = await Promise.all([
+    EventService.getCategories(),
+    EventService.getApprovedEventSuggestions()
+  ]);
+
+  const categories = categoriesResult || [];
+  const events = eventsResult.success ? eventsResult.data || [] : [];
+
+  // Filtrar eventos por categoria
+  const filteredEvents = selectedCategory === "all"
+    ? events
+    : events.filter((event) => event.category.key === selectedCategory);
 
   return (
     <div className="min-h-screen bg-background">
@@ -29,7 +39,10 @@ export default async function EventsPage({ searchParams }: { searchParams: Promi
         </div>
 
         {/* Category Filter */}
-        <EventFilter selectedCategory={selectedCategory} categories={Object.keys(eventCategoryLabels)} />
+        <EventFilter 
+          selectedCategory={selectedCategory} 
+          categories={categories}
+        />
 
         {/* Event Tabs */}
         <EventTabsClient events={filteredEvents} />

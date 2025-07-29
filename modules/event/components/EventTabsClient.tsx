@@ -2,17 +2,18 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar, Clock } from "lucide-react";
-import { Event } from "../actions/mockData";
+import { EventSuggestion } from "@/types/event";
 import EventCard from "./EventCard";
 import { Card, CardContent } from "@/components/ui/card";
 
 interface EventTabsClientProps {
-  events: Event[];
+  events: EventSuggestion[];
 }
 
 export default function EventTabsClient({ events }: EventTabsClientProps) {
-  const upcomingEvents = events.filter((event) => new Date(event.date) >= new Date());
-  const pastEvents = events.filter((event) => new Date(event.date) < new Date());
+  const now = new Date();
+  const upcomingEvents = events.filter((event) => new Date(event.date) >= now);
+  const pastEvents = events.filter((event) => new Date(event.date) < now);
 
   return (
     <Tabs defaultValue="upcoming" className="w-full">

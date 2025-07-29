@@ -2,24 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
-import { eventCategoryLabels } from "../actions/mockData";
-
+import { EventCategory } from "@/types/event";
 
 interface EventFilterProps {
   selectedCategory: string;
-  categories: string[];
+  categories: EventCategory[];
 }
 
 export default function EventFilter({ selectedCategory, categories }: EventFilterProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const handleCategoryChange = (category: string) => {
+  const handleCategoryChange = (categoryKey: string) => {
     const newParams = new URLSearchParams(searchParams.toString());
-    if (category === "all") {
+    if (categoryKey === "all") {
       newParams.delete("category");
     } else {
-      newParams.set("category", category);
+      newParams.set("category", categoryKey);
     }
     router.push(`/event?${newParams.toString()}`);
   };
@@ -35,15 +34,15 @@ export default function EventFilter({ selectedCategory, categories }: EventFilte
         >
           Todos os Eventos
         </Button>
-        {categories.map((key) => (
+        {categories.map((category) => (
           <Button
-            key={key}
-            variant={selectedCategory === key ? "default" : "outline"}
+            key={category.id}
+            variant={selectedCategory === category.key ? "default" : "outline"}
             size="sm"
-            onClick={() => handleCategoryChange(key)}
+            onClick={() => handleCategoryChange(category.key)}
             className="transition-all duration-200"
           >
-            {eventCategoryLabels[key as keyof typeof eventCategoryLabels]}
+            {category.label}
           </Button>
         ))}
       </div>
