@@ -1,13 +1,9 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -24,40 +20,29 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { useState } from "react";
-import { EventSuggestionFormValues, eventSuggestionSchema } from "@/modules/event/schemas/event-suggestion-schema";
-
-
+import { ArrowLeft, Loader2, RotateCcw } from "lucide-react";
+import { useEventSuggestionForm } from "@/modules/event/hooks/useEventSuggestionForm";
+import { EventCategory } from "@/types/event";
 
 interface EventSuggestionFormProps {
-  categories: [string, string][];
+  categories: EventCategory[];
+  onSuccess?: () => void;
 }
 
-export default function EventSuggestionForm({ categories }: EventSuggestionFormProps) {
-  const [isSubmitting, setIsSubmitting] = useState(false);
+export default function EventSuggestionForm({ 
+  categories, 
+  onSuccess 
+}: EventSuggestionFormProps) {
+  const {
+    form,
+    isSubmitting,
+    handleSubmit,
+    handleReset,
+    formatCategoriesForSelect,
+    getMinDate,
+  } = useEventSuggestionForm({ categories, onSuccess });
 
-  const form = useForm<EventSuggestionFormValues>({
-    resolver: zodResolver(eventSuggestionSchema),
-    defaultValues: {
-      title: "",
-      category: "",
-      description: "",
-      date: "",
-      time: "",
-      location: "",
-      organizer: "",
-      price: undefined,
-    },
-  });
-
-  const onSubmit = async (data: EventSuggestionFormValues) => {
-    setIsSubmitting(true);
-    console.log("Form data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // Mock submission
-    setIsSubmitting(false);
-    form.reset();
-  };
+  const categoriesForSelect = formatCategoriesForSelect();
 
   return (
     <Card>
@@ -69,7 +54,7 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 control={form.control}
@@ -78,7 +63,11 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                   <FormItem>
                     <FormLabel>Nome do Evento *</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input 
+                        placeholder="Ex: Workshop de inclusão LGBTQIA+"
+                        disabled={isSubmitting}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -90,14 +79,18 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoria *</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <Select 
+                      onValueChange={field.onChange} 
+                      value={field.value}
+                      disabled={isSubmitting}
+                    >
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione a categoria" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories.map(([key, label]) => (
+                        {categoriesForSelect.map(([key, label]) => (
                           <SelectItem key={key} value={key}>
                             {label}
                           </SelectItem>
@@ -117,7 +110,12 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                 <FormItem>
                   <FormLabel>Descrição</FormLabel>
                   <FormControl>
-                    <Textarea {...field} rows={4} />
+                    <Textarea 
+                      placeholder="Descreva o evento, atividades, público-alvo..."
+                      disabled={isSubmitting}
+                      rows={4} 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -132,7 +130,12 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                   <FormItem>
                     <FormLabel>Data *</FormLabel>
                     <FormControl>
-                      <Input type="date" {...field} />
+                      <Input 
+                        type="date" 
+                        min={getMinDate()}
+                        disabled={isSubmitting}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -145,7 +148,11 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                   <FormItem>
                     <FormLabel>Horário</FormLabel>
                     <FormControl>
-                      <Input type="time" {...field} />
+                      <Input 
+                        type="time" 
+                        disabled={isSubmitting}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -160,7 +167,11 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                 <FormItem>
                   <FormLabel>Local *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input 
+                      placeholder="Ex: Centro Cultural ABC, Rua das Flores, 123"
+                      disabled={isSubmitting}
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -175,7 +186,11 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                   <FormItem>
                     <FormLabel>Organizador *</FormLabel>
                     <FormControl>
-                      <Input {...field} />
+                      <Input 
+                        placeholder="Nome da pessoa ou organização"
+                        disabled={isSubmitting}
+                        {...field} 
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -192,6 +207,8 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
                         type="number"
                         step="0.01"
                         min="0"
+                        placeholder="0.00 para gratuito"
+                        disabled={isSubmitting}
                         {...field}
                         value={field.value ?? ""}
                         onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : undefined)}
@@ -205,13 +222,36 @@ export default function EventSuggestionForm({ categories }: EventSuggestionFormP
 
             <div className="flex gap-4 pt-6">
               <Button asChild variant="outline" className="flex-1">
-                <Link href="/event">
+                <Link href="/events">
                   <ArrowLeft className="mr-2 h-4 w-4" />
                   Voltar aos Eventos
                 </Link>
               </Button>
-              <Button type="submit" disabled={isSubmitting} className="flex-1">
-                {isSubmitting ? "Enviando..." : "Sugerir Evento"}
+              
+              <Button 
+                type="button"
+                variant="outline"
+                onClick={handleReset}
+                disabled={isSubmitting}
+                className="flex-shrink-0"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Limpar
+              </Button>
+              
+              <Button 
+                type="submit" 
+                disabled={isSubmitting} 
+                className="flex-1"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Enviando...
+                  </>
+                ) : (
+                  'Sugerir Evento'
+                )}
               </Button>
             </div>
           </form>
