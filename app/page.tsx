@@ -70,7 +70,7 @@ export default function Home() {
                 </Link>
               </Button>
               <Button asChild size="lg">
-                <Link href="/eventos">
+                <Link href="/event">
                   <Calendar className="mr-2 h-5 w-5" />
                   Explorar Eventos
                 </Link>
@@ -148,7 +148,7 @@ export default function Home() {
               </Link>
             </Button>
             <Button asChild size="lg">
-              <Link href="/eventos">
+              <Link href="/event">
                 <Calendar className="mr-2 h-5 w-5" />
                 Explorar Eventos
               </Link>
