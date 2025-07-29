@@ -167,7 +167,7 @@ export default function MapClient({ locations }: MapClientProps) {
               </div>
 
               <div className="space-y-2 pt-4">
-                <Link href="/sugerir">
+                <Link href="/suggest-location">
                   <Button className="w-full" size="sm">
                     <Plus className="h-4 w-4 mr-2" />
                     Sugerir Local
@@ -179,7 +179,7 @@ export default function MapClient({ locations }: MapClientProps) {
                     Sugerir Evento
                   </Button>
                 </Link>
-                <Link href="/eventos">
+                <Link href="/event">
                   <Button variant="outline" className="w-full" size="sm">
                     <Users className="h-4 w-4 mr-2" />
                     Ver Eventos
