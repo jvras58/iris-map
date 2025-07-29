@@ -1,14 +1,15 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { categoryLabels } from "@/modules/event/actions/mockData";
 import LocationSuggestionForm from "@/modules/event/components/LocationSuggestionForm";
 import { Metadata } from "next";
+import { LocationService } from "@/modules/event/service/location";
 
 export const metadata: Metadata = {
   title: "Sugerir Local",
 };
 
-export default function SuggestLocationPage() {
+export default async function SuggestLocationPage() {
+  const categories = await LocationService.getCategories();
   const popularTags = [
     "pet-friendly",
     "wifi",
@@ -40,7 +41,7 @@ export default function SuggestLocationPage() {
           </p>
         </div>
 
-        <LocationSuggestionForm categories={Object.entries(categoryLabels)} popularTags={popularTags} />
+        <LocationSuggestionForm categories={categories} popularTags={popularTags} />
 
         {/* Info Card */}
         <Card className="mt-6 bg-accent/50 border-accent animate-fade-in">

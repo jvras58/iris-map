@@ -1,8 +1,5 @@
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -24,73 +21,35 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Plus, X, MapPin, Send, Sparkles } from "lucide-react";
-import { toast } from "sonner";
+import { MapPin, Plus, RotateCcw, Send, X } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
-import { LocationSuggestionFormValues, locationSuggestionSchema } from "../schemas/location-suggestion-schema";
-
+import { useLocationSuggestionForm } from "@/modules/event/hooks/use-Location-Suggestion";
+import { EventCategory } from "@prisma/client";
 
 interface LocationSuggestionFormProps {
-  categories: [string, string][];
+  categories: EventCategory[];
   popularTags: string[];
 }
 
-export default function LocationSuggestionForm({ categories, popularTags }: LocationSuggestionFormProps) {
+export default function LocationSuggestionForm({
+  categories,
+  popularTags,
+}: LocationSuggestionFormProps) {
+  const { form, isSubmitting, handleSubmit, handleReset, formatCategoriesForSelect, addTag, removeTag } =
+    useLocationSuggestionForm({ categories });
+
   const [newTag, setNewTag] = useState("");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
-  const form = useForm<LocationSuggestionFormValues>({
-    resolver: zodResolver(locationSuggestionSchema),
-    defaultValues: {
-      name: "",
-      category: "",
-      address: "",
-      description: "",
-      phone: "",
-      website: "",
-      lgbtqOwned: false,
-      safetyRating: "safe",
-      publicVisible: true,
-      tags: [],
-    },
-  });
-
-  const addTag = (tag: string) => {
-    if (tag.trim() && !form.getValues("tags").includes(tag.trim())) {
-      form.setValue("tags", [...form.getValues("tags"), tag.trim()]);
-      setNewTag("");
-    }
-  };
-
-  const removeTag = (tagToRemove: string) => {
-    form.setValue("tags", form.getValues("tags").filter((tag) => tag !== tagToRemove));
-  };
-
-  const onSubmit = async (data: LocationSuggestionFormValues) => {
-    setIsSubmitting(true);
-    // TODO: Implementar criação de local
-    console.log("Form data:", data);
-    await new Promise((resolve) => setTimeout(resolve, 1500)); // Mock submission
-    toast.success("Sugestão enviada com sucesso! 🎉", {
-      description: "Obrigado por contribuir com nossa comunidade. Sua sugestão será analisada em breve.",
-    });
-    setIsSubmitting(false);
-    form.reset();
-  };
+  const categoriesForSelect = formatCategoriesForSelect();
 
   return (
     <Card className="shadow-soft animate-fade-in">
       <CardHeader>
-        <CardTitle className="flex items-center space-x-2">
-          <Plus className="h-5 w-5 text-primary" />
-          <span>Informações do Local</span>
-        </CardTitle>
+        <CardTitle>Compartilhe um local inclusivo</CardTitle>
       </CardHeader>
       <CardContent>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            {/* Basic Information */}
+          <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -99,7 +58,7 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                   <FormItem>
                     <FormLabel>Nome do Local *</FormLabel>
                     <FormControl>
-                      <Input placeholder="Ex: Café Acolhedor" {...field} />
+                      <Input placeholder="Ex: Café Acolhedor" disabled={isSubmitting} {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -111,14 +70,14 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoria *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue placeholder="Selecione uma categoria" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {categories.map(([key, label]) => (
+                        {categoriesForSelect.map(([key, label]) => (
                           <SelectItem key={key} value={key}>
                             {label}
                           </SelectItem>
@@ -138,7 +97,11 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                 <FormItem>
                   <FormLabel>Endereço *</FormLabel>
                   <FormControl>
-                    <Input placeholder="Rua, número, bairro - cidade" {...field} />
+                    <Input
+                      placeholder="Rua, número, bairro - cidade"
+                      disabled={isSubmitting}
+                      {...field}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -155,6 +118,7 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                     <Textarea
                       placeholder="Descreva o local, ambiente, serviços oferecidos..."
                       rows={3}
+                      disabled={isSubmitting}
                       {...field}
                     />
                   </FormControl>
@@ -163,7 +127,6 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
               )}
             />
 
-            {/* Contact Information */}
             <div className="grid gap-4 md:grid-cols-2">
               <FormField
                 control={form.control}
@@ -172,11 +135,9 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                   <FormItem>
                     <FormLabel>Telefone</FormLabel>
                     <FormControl>
-                      <Input placeholder="(11) 9999-9999" {...field} />
+                      <Input placeholder="(11) 99999-9999" disabled={isSubmitting} {...field} />
                     </FormControl>
-                    <div className="min-h-[20px]">
-                      <FormMessage />
-                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -187,17 +148,14 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                   <FormItem>
                     <FormLabel>Website</FormLabel>
                     <FormControl>
-                      <Input placeholder="https://exemplo.com" {...field} />
+                      <Input placeholder="https://exemplo.com" disabled={isSubmitting} {...field} />
                     </FormControl>
-                    <div className="min-h-[20px]">
-                      <FormMessage />
-                    </div>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
             </div>
 
-            {/* Characteristics */}
             <div className="space-y-4">
               <FormField
                 control={form.control}
@@ -208,6 +166,7 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormLabel className="text-sm font-medium leading-none cursor-pointer">
@@ -224,7 +183,7 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Nível de Segurança</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value} disabled={isSubmitting}>
                       <FormControl>
                         <SelectTrigger>
                           <SelectValue />
@@ -250,6 +209,7 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <FormLabel className="text-sm font-medium leading-none cursor-pointer">
@@ -261,33 +221,51 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
               />
             </div>
 
-            {/* Tags */}
-            <div className="space-y-4">
-              <FormLabel>Tags (características do local)</FormLabel>
-              <div className="flex gap-2">
-                <Input
-                  placeholder="Adicionar tag"
-                  value={newTag}
-                  onChange={(e) => setNewTag(e.target.value)}
-                  onKeyUp={(e) => e.key === "Enter" && (e.preventDefault(), addTag(newTag))}
-                />
-                <Button type="button" size="sm" onClick={() => addTag(newTag)}>
-                  <Plus size={16} />
-                </Button>
-              </div>
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags (características do local)</FormLabel>
+                  <div className="space-y-3">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Adicionar tag personalizada..."
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            if (newTag.trim()) {
+                              addTag(newTag);
+                              setNewTag("");
+                            }
+                          }
+                        }}
+                        disabled={isSubmitting}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          if (newTag.trim()) {
+                            addTag(newTag);
+                            setNewTag("");
+                          }
+                        }}
+                        disabled={isSubmitting || !newTag.trim()}
+                      >
+                        Adicionar
+                      </Button>
+                    </div>
 
-              <FormField
-                control={form.control}
-                name="tags"
-                render={({ field }) => (
-                  <FormItem>
                     {field.value.length > 0 && (
                       <div className="flex flex-wrap gap-2">
                         {field.value.map((tag, index) => (
                           <Badge
                             key={index}
                             variant="secondary"
-                            className="cursor-pointer hover:bg-muted flex items-center gap-1"
+                            className="flex items-center gap-1"
                           >
                             {tag}
                             <button
@@ -295,9 +273,10 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                removeTag(tag);
+                                removeTag(index);
                               }}
                               className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                              disabled={isSubmitting}
                             >
                               <X size={12} />
                             </button>
@@ -305,41 +284,51 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
                         ))}
                       </div>
                     )}
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
-              <div className="space-y-2">
-                <FormLabel className="text-sm text-muted-foreground">Sugestões de tags:</FormLabel>
-                <div className="flex flex-wrap gap-1">
-                  {popularTags
-                    .filter((tag) => !form.getValues("tags").includes(tag))
-                    .slice(0, 8)
-                    .map((tag) => (
-                      <Button
-                        key={tag}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="text-xs h-7"
-                        onClick={() => addTag(tag)}
-                      >
-                        <Plus size={12} className="mr-1" />
-                        {tag}
-                      </Button>
-                    ))}
-                </div>
-              </div>
-            </div>
+                    <div className="space-y-2">
+                      <FormLabel className="text-sm text-muted-foreground">Sugestões de tags:</FormLabel>
+                      <div className="flex flex-wrap gap-1">
+                        {popularTags
+                          .filter((tag) => !field.value.includes(tag))
+                          .slice(0, 8)
+                          .map((tag) => (
+                            <Button
+                              key={tag}
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-7"
+                              onClick={() => addTag(tag)}
+                              disabled={isSubmitting}
+                            >
+                              <Plus size={12} className="mr-1" />
+                              {tag}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-            {/* Submit Button */}
             <div className="flex gap-4 pt-6">
-              <Button asChild variant="outline" className="flex-1">
-                <Link href="/mapa">
+              <Button asChild variant="outline" className="flex-1" disabled={isSubmitting}>
+                <Link href="/map">
                   <MapPin className="mr-2 h-4 w-4" />
                   Voltar ao Mapa
                 </Link>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleReset}
+                disabled={isSubmitting}
+                className="flex-shrink-0"
+              >
+                <RotateCcw className="mr-2 h-4 w-4" />
+                Limpar
               </Button>
               <Button
                 type="submit"
@@ -348,7 +337,7 @@ export default function LocationSuggestionForm({ categories, popularTags }: Loca
               >
                 {isSubmitting ? (
                   <>
-                    <Sparkles className="mr-2 h-4 w-4 animate-spin" />
+                    <Send className="mr-2 h-4 w-4 animate-spin" />
                     Enviando...
                   </>
                 ) : (
