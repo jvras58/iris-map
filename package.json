@@ -6,7 +6,12 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "test": "echo \"No tests specified\" && exit 0",
+    "prisma:db:push": "prisma db push",
+    "prisma:db:seed": "prisma db seed",
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@auth/prisma-adapter": "^2.10.0",
