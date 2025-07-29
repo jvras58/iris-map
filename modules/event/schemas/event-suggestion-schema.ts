@@ -42,6 +42,17 @@ export const eventSuggestionSchema = z.object({
     .min(0, 'O preço deve ser maior ou igual a zero')
     .max(999999.99, 'O preço deve ser menor que R$ 1.000.000')
     .optional(),
+  
+  lgbtqFriendly: z.boolean()
+    .optional()
+    .default(true),
+  
+  tags: z.array(z.string().trim().min(1, 'Tag não pode estar vazia'))
+    .max(10, 'Máximo de 10 tags permitidas')
+    .transform((tags) => {
+      const filtered = tags?.filter(tag => tag.length > 0) || [];
+      return filtered;
+    }),
 });
 
 // Schema para criação no banco (com transformações)
@@ -54,6 +65,8 @@ export const createEventSuggestionSchema = eventSuggestionSchema.transform((data
   location: data.location,
   organizer: data.organizer,
   price: data.price || null,
+  lgbtqFriendly: data.lgbtqFriendly ?? true,
+  tags: data.tags || [],
 }));
 
 export type EventSuggestionFormValues = z.infer<typeof eventSuggestionSchema>;

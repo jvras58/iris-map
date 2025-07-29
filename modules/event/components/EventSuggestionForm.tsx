@@ -20,9 +20,13 @@ import {
 } from "@/components/ui/select";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import Link from "next/link";
-import { ArrowLeft, Loader2, RotateCcw } from "lucide-react";
-import { useEventSuggestionForm } from "@/modules/event/hooks/useEventSuggestionForm";
-import { EventCategory } from "@/types/event";
+import { ArrowLeft, Loader2, Plus, RotateCcw, X } from "lucide-react";
+import { useEventSuggestionForm } from "@/modules/event/hooks/use-Event-Suggestion";
+import { EventCategory } from "@prisma/client";
+import { Switch } from "@/components/ui/switch";
+import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+
 
 interface EventSuggestionFormProps {
   categories: EventCategory[];
@@ -40,9 +44,20 @@ export default function EventSuggestionForm({
     handleReset,
     formatCategoriesForSelect,
     getMinDate,
+    addTag,
+    removeTag,
   } = useEventSuggestionForm({ categories, onSuccess });
 
   const categoriesForSelect = formatCategoriesForSelect();
+  // [REFACTOR] Considerar usar o usewatch?
+  const [newTag, setNewTag] = useState("");
+
+  const tags = form.getValues("tags") || [];
+  const popularTags = [
+    "workshop", "festa", "discussão", "arte", "música", 
+    "teatro", "cinema", "literatura", "política", "saúde",
+    "educação", "esporte", "gastronomia", "tecnologia", "networking"
+  ];
 
   return (
     <Card>
@@ -218,7 +233,124 @@ export default function EventSuggestionForm({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="lgbtqFriendly"
+                render={({ field }) => (
+                  <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                    <div className="space-y-0.5">
+                      <FormLabel className="text-base">Evento LGBTQIA+ Friendly</FormLabel>
+                      <div className="text-sm text-muted-foreground">
+                        Este evento é acolhedor para pessoas LGBTQIA+
+                      </div>
+                    </div>
+                    <FormControl>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
             </div>
+
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Tags</FormLabel>
+                  <div className="space-y-3">
+                    {/* Input para adicionar tag personalizada */}
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="Adicionar tag personalizada..."
+                        value={newTag}
+                        onChange={(e) => setNewTag(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            e.preventDefault();
+                            if (newTag.trim()) {
+                              addTag(newTag);
+                              setNewTag("");
+                            }
+                          }
+                        }}
+                        disabled={isSubmitting}
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => {
+                          if (newTag.trim()) {
+                            addTag(newTag);
+                            setNewTag("");
+                          }
+                        }}
+                        disabled={isSubmitting || !newTag.trim()}
+                      >
+                        Adicionar
+                      </Button>
+                    </div>
+
+                    {/* Tags selecionadas */}
+                    {field.value && field.value.length > 0 && (
+                      <div className="flex flex-wrap gap-2">
+                        {field.value.map((tag, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="flex items-center gap-1"
+                          >
+                            {tag}
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                removeTag(index);
+                              }}
+                              className="ml-1 hover:bg-destructive/20 rounded-full p-0.5 transition-colors"
+                              disabled={isSubmitting}
+                            >
+                              <X size={12} />
+                            </button>
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Tags sugeridas */}
+                    <div className="space-y-2">
+                      <FormLabel className="text-sm text-muted-foreground">Sugestões de tags:</FormLabel>
+                      <div className="flex flex-wrap gap-1">
+                        {popularTags
+                          .filter((tag) => !field.value?.includes(tag))
+                          .slice(0, 8)
+                          .map((tag) => (
+                            <Button
+                              key={tag}
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="text-xs h-7"
+                              onClick={() => addTag(tag)}
+                              disabled={isSubmitting}
+                            >
+                              <Plus size={12} className="mr-1" />
+                              {tag}
+                            </Button>
+                          ))}
+                      </div>
+                    </div>
+                  </div>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <div className="flex gap-4 pt-6">
               <Button asChild variant="outline" className="flex-1">

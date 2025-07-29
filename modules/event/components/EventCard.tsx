@@ -1,7 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, Clock, MapPin, User, Heart, DollarSign } from "lucide-react";
+import { Calendar, Clock, MapPin, User, Heart, DollarSign, Shield } from "lucide-react";
 import { EventSuggestion } from "@/types/event";
 
 interface EventCardProps {
@@ -23,13 +23,23 @@ export default function EventCard({ event }: EventCardProps) {
       <CardHeader className="pb-3">
         <div className="flex items-start justify-between">
           <div className="space-y-1">
-            <CardTitle className="text-lg leading-tight">
+            <CardTitle className="text-lg leading-tight flex items-center">
               {event.title}
               <span className="ml-2 text-love-pink">🏳️‍🌈</span>
+              {event.lgbtqFriendly && (
+                <Shield className="ml-2 h-4 w-4 text-safe-green" />
+              )}
             </CardTitle>
-            <Badge variant="secondary" className="w-fit">
-              {event.category.label}
-            </Badge>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="w-fit">
+                {event.category.label}
+              </Badge>
+              {event.lgbtqFriendly && (
+                <Badge variant="outline" className="bg-safe-green/10 text-safe-green border-safe-green/30">
+                  LGBTQ+ Friendly
+                </Badge>
+              )}
+            </div>
           </div>
           <div className="text-right text-sm text-muted-foreground">
             {event.price === null || event.price === 0 ? (
@@ -85,6 +95,17 @@ export default function EventCard({ event }: EventCardProps) {
             </div>
           )}
         </div>
+
+        {/* Tags */}
+        {event.tags && event.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1">
+            {event.tags.map((tag, index) => (
+              <Badge key={index} variant="outline" className="text-xs">
+                {tag}
+              </Badge>
+            ))}
+          </div>
+        )}
 
         <div className="flex gap-2 pt-2">
           <Button className="flex-1" size="sm">

@@ -1,11 +1,5 @@
-import { EventSuggestionStatus } from "@prisma/client";
+import { EventCategory, EventSuggestionStatus } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
-
-export interface EventCategory {
-  id: string;
-  key: string;
-  label: string;
-}
 
 export interface EventSuggestion {
   id: string;
@@ -21,6 +15,8 @@ export interface EventSuggestion {
   userId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  lgbtqFriendly: boolean;
+  tags: string[];
   category: EventCategory;
   user?: {
     name: string | null;
@@ -43,6 +39,8 @@ export interface EventSuggestionRaw {
   userId: string | null;
   createdAt: Date;
   updatedAt: Date;
+  lgbtqFriendly: boolean;
+  tags: string;
   category: EventCategory;
   user?: {
     name: string | null;
@@ -59,6 +57,8 @@ export interface CreateEventSuggestionData {
   location: string;
   organizer: string;
   price?: number;
+  lgbtqFriendly?: boolean;
+  tags?: string[];
 }
 
 export interface EventSuggestionResult {

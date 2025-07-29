@@ -43,23 +43,25 @@ model Profile {
 }
 
 model EventSuggestion {
-  id          String                @id @default(cuid())
-  title       String
-  categoryId  String
-  description String?
-  date        DateTime
-  time        String?
-  location    String
-  organizer   String
-  price       Decimal?              @default(0.00)
-  status      EventSuggestionStatus @default(PENDING)
-  createdAt   DateTime              @default(now())
-  updatedAt   DateTime              @updatedAt
-
-  userId   String?
-  user     User?         @relation(fields: [userId], references: [id])
-  category EventCategory @relation(fields: [categoryId], references: [id])
-
+  id           String                 @id @default(cuid())
+  title        String
+  categoryId   String
+  description  String?
+  date         DateTime
+  time         String?
+  location     String
+  organizer    String
+  price        Decimal?
+  status       EventSuggestionStatus  @default(PENDING)
+  userId       String?
+  lgbtqFriendly Boolean               @default(true)
+  tags         String                @default("[]")
+  createdAt    DateTime              @default(now())
+  updatedAt    DateTime              @updatedAt
+  
+  category     EventCategory         @relation(fields: [categoryId], references: [id])
+  user         User?                 @relation(fields: [userId], references: [id])
+  
   @@map("event_suggestions")
 }
 

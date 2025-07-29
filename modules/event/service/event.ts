@@ -3,13 +3,12 @@ import { Decimal } from "@prisma/client/runtime/library";
 import { 
   EventSuggestion, 
   EventSuggestionRaw,
-  EventCategory, 
   CreateEventSuggestionData,
   EventSuggestionResult,
   EventListResult 
 } from "@/types/event";
 import { CreateEventSuggestionInput } from "@/modules/event/schemas/event-suggestion-schema";
-import { EventSuggestionStatus } from "@prisma/client";
+import { EventSuggestionStatus, EventCategory  } from "@prisma/client";
 
 export class EventService {
   // Função helper para converter Decimal para number
@@ -18,11 +17,30 @@ export class EventService {
     return decimal.toNumber();
   }
 
+  // Função helper para converter tags JSON string para array
+  private static parseTags(tagsJson: string): string[] {
+    try {
+      const parsed = JSON.parse(tagsJson);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch {
+      return [];
+    }
+  }
+
+  // Função helper para converter array de tags para JSON string
+  private static stringifyTags(tags: string[]): string {
+    return JSON.stringify(tags || []);
+  }
+
   // Função helper para converter dados do Prisma para o formato da aplicação
-  private static convertEventSuggestion(rawEvent: EventSuggestionRaw): EventSuggestion {
+  private static convertEventSuggestion(rawEvent: any): EventSuggestion {
     return {
       ...rawEvent,
       price: this.convertDecimalToNumber(rawEvent.price),
+      // Converter tags de JSON string para array
+      tags: this.parseTags(rawEvent.tags || "[]"),
+      // Garantir que lgbtqFriendly tenha um valor padrão
+      lgbtqFriendly: rawEvent.lgbtqFriendly ?? true
     };
   }
 
@@ -57,11 +75,23 @@ export class EventService {
         };
       }
 
+      // Preparar dados para criação
+      const createData = {
+        title: data.title,
+        categoryId: data.categoryId,
+        description: data.description || null,
+        date: data.date,
+        time: data.time || null,
+        location: data.location,
+        organizer: data.organizer,
+        price: data.price || null,
+        userId: userId || null,
+        lgbtqFriendly: data.lgbtqFriendly ?? true,
+        tags: this.stringifyTags(data.tags || []) // Converter array para JSON string
+      };
+
       const rawEventSuggestion = await prisma.eventSuggestion.create({
-        data: {
-          ...data,
-          userId: userId || null,
-        },
+        data: createData,
         include: {
           category: true,
           user: {
@@ -71,7 +101,7 @@ export class EventService {
             }
           }
         }
-      }) as EventSuggestionRaw;
+      });
 
       const eventSuggestion = this.convertEventSuggestion(rawEventSuggestion);
 
@@ -106,7 +136,7 @@ export class EventService {
           }
         },
         orderBy: { createdAt: 'desc' }
-      }) as EventSuggestionRaw[];
+      });
 
       const suggestions = rawSuggestions.map(raw => this.convertEventSuggestion(raw));
 
@@ -141,7 +171,7 @@ export class EventService {
           }
         },
         orderBy: { date: 'asc' }
-      }) as EventSuggestionRaw[];
+      });
 
       const suggestions = rawSuggestions.map(raw => this.convertEventSuggestion(raw));
 
@@ -175,7 +205,7 @@ export class EventService {
             }
           }
         }
-      }) as EventSuggestionRaw | null;
+      });
 
       if (!rawSuggestion) {
         return {
@@ -220,7 +250,7 @@ export class EventService {
             }
           }
         }
-      }) as EventSuggestionRaw;
+      });
 
       const suggestion = this.convertEventSuggestion(rawSuggestion);
 
@@ -234,6 +264,63 @@ export class EventService {
         success: false,
         error: {
           message: 'Erro ao atualizar status',
+          details: error instanceof Error ? error.message : 'Erro desconhecido'
+        }
+      };
+    }
+  }
+
+  // Método adicional: Buscar eventos por filtros
+  static async getFilteredEventSuggestions(filters: {
+    categoryKey?: string;
+    lgbtqFriendly?: boolean;
+    tags?: string[];
+  }): Promise<EventListResult> {
+    try {
+      const where: any = { status: EventSuggestionStatus.APPROVED };
+
+      if (filters.categoryKey && filters.categoryKey !== 'all') {
+        where.category = { key: filters.categoryKey };
+      }
+
+      if (filters.lgbtqFriendly !== undefined) {
+        where.lgbtqFriendly = filters.lgbtqFriendly;
+      }
+
+      // Para filtrar por tags no SQLite, precisamos usar LIKE
+      if (filters.tags && filters.tags.length > 0) {
+        const tagConditions = filters.tags.map(tag => ({
+          tags: { contains: `"${tag}"` }
+        }));
+        where.OR = tagConditions;
+      }
+
+      const rawSuggestions = await prisma.eventSuggestion.findMany({
+        where,
+        include: {
+          category: true,
+          user: {
+            select: {
+              name: true,
+              email: true,
+            }
+          }
+        },
+        orderBy: { date: 'asc' }
+      });
+
+      const suggestions = rawSuggestions.map(raw => this.convertEventSuggestion(raw));
+
+      return {
+        success: true,
+        data: suggestions
+      };
+    } catch (error) {
+      console.error('Erro ao buscar eventos filtrados:', error);
+      return {
+        success: false,
+        error: {
+          message: 'Erro ao buscar eventos',
           details: error instanceof Error ? error.message : 'Erro desconhecido'
         }
       };

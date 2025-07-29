@@ -1,8 +1,9 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { EventCategory } from "@prisma/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { EventCategory } from "@/types/event";
+
 
 interface EventFilterProps {
   selectedCategory: string;

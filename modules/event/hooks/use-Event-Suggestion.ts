@@ -8,7 +8,7 @@ import {
   EventSuggestionFormValues 
 } from '@/modules/event/schemas/event-suggestion-schema';
 import { createEventSuggestion } from '@/modules/event/actions/event';
-import { EventCategory } from '@/types/event';
+import { EventCategory } from '@prisma/client';
 
 interface UseEventSuggestionFormProps {
   categories: EventCategory[];
@@ -32,9 +32,11 @@ export function useEventSuggestionForm({
       time: "",
       location: "",
       organizer: "",
+      lgbtqFriendly: true,
+      tags: [],
       price: undefined,
     },
-  });
+  } as any); // [REFACTOR] Ajustar o tipo de form para evitar any
 
   const handleSubmit = async (data: EventSuggestionFormValues) => {
     setIsSubmitting(true);
@@ -53,7 +55,7 @@ export function useEventSuggestionForm({
           onSuccess();
         } else {
           // Redirect padrão para a lista de eventos
-          router.push('/events?submitted=true');
+          router.push('/event?');
         }
       } else {
         toast.error('Erro ao enviar sugestão', {
@@ -85,6 +87,21 @@ export function useEventSuggestionForm({
     return today.toISOString().split('T')[0];
   };
 
+  // Função helper para adicionar tag
+  const addTag = (tag: string) => {
+    const currentTags = form.getValues('tags') || [];
+    if (tag.trim() && !currentTags.includes(tag.trim())) {
+      form.setValue('tags', [...currentTags, tag.trim()]);
+    }
+  };
+
+  // Função helper para remover tag
+  const removeTag = (index: number) => {
+    const currentTags = form.getValues('tags') || [];
+    const newTags = currentTags.filter((_, i) => i !== index);
+    form.setValue('tags', newTags);
+  };
+
   return {
     form,
     isSubmitting,
@@ -92,5 +109,7 @@ export function useEventSuggestionForm({
     handleReset,
     formatCategoriesForSelect,
     getMinDate,
+    addTag,
+    removeTag,
   };
 }
